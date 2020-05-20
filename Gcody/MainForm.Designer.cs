@@ -70,13 +70,15 @@
             this.richTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.richTextBox.Font = new System.Drawing.Font("Courier New", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.richTextBox.BackColor = System.Drawing.SystemColors.InactiveCaption;
+            this.richTextBox.Font = new System.Drawing.Font("Courier New", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.richTextBox.Location = new System.Drawing.Point(12, 12);
             this.richTextBox.Name = "richTextBox";
             this.richTextBox.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
             this.richTextBox.Size = new System.Drawing.Size(679, 482);
             this.richTextBox.TabIndex = 3;
-            this.richTextBox.Text = "N0001 PROGRAM\nN0002 INIT\nN0003 \nN0004 \nN0005 \nN0006 DONE\nN0007 ENDPROGRAM";
+            this.richTextBox.Text = "";
+            this.richTextBox.TextChanged += new System.EventHandler(this.richTextBox_TextChanged);
             this.richTextBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.richTextBox_KeyUp);
             // 
             // EnterButton
@@ -193,7 +195,9 @@
             this.Controls.Add(this.UpButton);
             this.MinimumSize = new System.Drawing.Size(300, 626);
             this.Name = "MainForm";
-            this.Text = "GCode";
+            this.Text = "GCode Editor - Untitled.ncp";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
+            this.Load += new System.EventHandler(this.MainForm_Load);
             this.ResumeLayout(false);
 
         }

@@ -37,6 +37,7 @@
             // 
             // PreselectedButton
             // 
+            this.PreselectedButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.PreselectedButton.Location = new System.Drawing.Point(13, 13);
             this.PreselectedButton.Name = "PreselectedButton";
             this.PreselectedButton.Size = new System.Drawing.Size(75, 75);
@@ -47,6 +48,7 @@
             // 
             // MarkerButton
             // 
+            this.MarkerButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.MarkerButton.Location = new System.Drawing.Point(13, 94);
             this.MarkerButton.Name = "MarkerButton";
             this.MarkerButton.Size = new System.Drawing.Size(75, 75);
@@ -57,6 +59,7 @@
             // 
             // PlasmaButton
             // 
+            this.PlasmaButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.PlasmaButton.Location = new System.Drawing.Point(94, 13);
             this.PlasmaButton.Name = "PlasmaButton";
             this.PlasmaButton.Size = new System.Drawing.Size(75, 75);
@@ -67,6 +70,7 @@
             // 
             // OxygenButton
             // 
+            this.OxygenButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.OxygenButton.Location = new System.Drawing.Point(94, 94);
             this.OxygenButton.Name = "OxygenButton";
             this.OxygenButton.Size = new System.Drawing.Size(75, 75);
@@ -77,6 +81,7 @@
             // 
             // CancelButton
             // 
+            this.CancelButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.CancelButton.Location = new System.Drawing.Point(13, 175);
             this.CancelButton.Name = "CancelButton";
             this.CancelButton.Size = new System.Drawing.Size(156, 75);

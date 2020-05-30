@@ -35,26 +35,29 @@
             // 
             // OnButton
             // 
+            this.OnButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.OnButton.Location = new System.Drawing.Point(13, 13);
             this.OnButton.Name = "OnButton";
             this.OnButton.Size = new System.Drawing.Size(75, 75);
             this.OnButton.TabIndex = 0;
-            this.OnButton.Text = "On";
+            this.OnButton.Text = "ON";
             this.OnButton.UseVisualStyleBackColor = true;
             this.OnButton.Click += new System.EventHandler(this.OnButton_Click);
             // 
             // OffButton
             // 
+            this.OffButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.OffButton.Location = new System.Drawing.Point(95, 13);
             this.OffButton.Name = "OffButton";
             this.OffButton.Size = new System.Drawing.Size(75, 75);
             this.OffButton.TabIndex = 1;
-            this.OffButton.Text = "Off";
+            this.OffButton.Text = "OFF";
             this.OffButton.UseVisualStyleBackColor = true;
             this.OffButton.Click += new System.EventHandler(this.OffButton_Click);
             // 
             // CancelButton
             // 
+            this.CancelButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.CancelButton.Location = new System.Drawing.Point(13, 95);
             this.CancelButton.Name = "CancelButton";
             this.CancelButton.Size = new System.Drawing.Size(157, 75);

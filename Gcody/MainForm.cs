@@ -35,8 +35,9 @@ namespace Gcody
             String.Empty
         };
 
+        bool lastChange = false;
         string defaultFileName = "Untitled.ncp";
-        private Timer autosaveTimer = new Timer();
+        private readonly Timer autosaveTimer = new Timer();
 
         private void MainForm_Load(object sender, EventArgs e)
         {
@@ -49,7 +50,7 @@ namespace Gcody
         private void AutosaveTimer_Tick(object sender, EventArgs e)
         {
             string text = richTextBox.Text;
-            File.WriteAllText("autosave.ncp", text);
+            File.WriteAllText(String.Concat(AppDomain.CurrentDomain.BaseDirectory, "autosave.ncp"), text);
         }
 
         private void UseButton_Click(object sender, EventArgs e)
@@ -108,15 +109,15 @@ namespace Gcody
             richTextBox.Select(richTextBox.GetFirstCharIndexFromLine(currentLine) + lineOffset + 6, 0);
         }
 
-        private string[] FormatLines(string[] text)
+        private string[] FormatLines(string[] lines)
         {
-            for(int i = 0; i < text.Length; i++)
+            for(int i = 0; i < lines.Length; i++)
             {
                 string regex = @"N[0-9]{1,4}\s*";
-                text[i] = Regex.Replace(text[i], regex, "");
-                text[i] = string.Format("N{0} {1}", (i + 1).ToString("D4"), text[i]); 
+                lines[i] = Regex.Replace(lines[i], regex, "");
+                lines[i] = string.Format("N{0} {1}", (i + 1).ToString("D4"), lines[i]);
             }
-            return text;
+            return lines;
         }
 
         public void Write(string text)
@@ -131,26 +132,44 @@ namespace Gcody
 
         public void PaintText()
         {
-            int caretPosition = richTextBox.SelectionStart;
-            richTextBox.Select(0, richTextBox.Text.Length);
-            richTextBox.SelectionColor = Color.Black;
-            KeyValuePair<string, Color>[] pattern = new KeyValuePair<string, Color>[] {
-                new KeyValuePair<string, Color>(@"N[0-9]{1,4}", Color.Red),
-                new KeyValuePair<string, Color>(@"G[0-2]", Color.Purple),
-                new KeyValuePair<string, Color>(@"[X|Y|I|J]{1}[0-9]{1,6}", Color.Green),
-                new KeyValuePair<string, Color>(@"TECHNOLOGY_O(N|FF)", Color.DarkRed),
-                new KeyValuePair<string, Color>(@"(PROGRAM|INIT|DONE|ENDPROGRAM)", Color.DarkRed),
-                new KeyValuePair<string, Color>(@"USE_(PRESELECTED|PLASMA|MARKER|OXYGEN)", Color.DarkRed)
-            };
-            foreach(KeyValuePair<string, Color> pair in pattern)
+            if (lastChange)
             {
-                MatchCollection matches = Regex.Matches(richTextBox.Text, pair.Key);
-                foreach (Match match in matches)
-                {
-                    richTextBox.Select(match.Index, match.Length);
-                    richTextBox.SelectionColor = pair.Value;
-                }
+                lastChange = false;
+                return;
             }
+            string baseText = richTextBox.Text;
+            string prefix = string.Concat(@"{\rtf1\ansi\deff0{\fonttbl{\f0\fnil\fcharset238{\*\fname Courier New;}Courier New CE;}}", "\n",
+                @"{\colortbl ;\red255\green0\blue0;\red0\green0\blue0;\red139\green0\blue0;\red255\green165\blue0;\red128\green0\blue128;\red0\green128\blue0;}", "\n",
+                @"\viewkind4\uc1\pard\cf1\lang1045\b\f0\fs29 ");
+            int caretPosition = richTextBox.SelectionStart;
+            KeyValuePair<string, string>[] patterns = new KeyValuePair<string, string>[] {
+                new KeyValuePair<string, string>(@"N[0-9]{1,4}", @"\cf1"),
+                new KeyValuePair<string, string>(@"G[0-2]", @"\cf5"),
+                new KeyValuePair<string, string>(@"[X|Y|I|J]{1}-?[0-9.]{1,6}", @"\cf6"),
+                new KeyValuePair<string, string>(@"TECHNOLOGY_O(N|FF)", @"\cf3"),
+                new KeyValuePair<string, string>(@"(ENDPROGRAM|INIT|DONE)", @"\cf3"),
+                new KeyValuePair<string, string>(@"PROGRAM", @"\cf3"),
+                new KeyValuePair<string, string>(@"USE_(PRESELECTED|PLASMA|MARKER|OXYGEN)", @"\cf3")
+            };
+            foreach (KeyValuePair<string, string> pattern in patterns)
+            {
+                string replacement = String.Empty;
+                while (true)
+                {
+                    Match match = Regex.Match(baseText, pattern.Key);
+                    if (!match.Success) break;
+                    string before = baseText.Substring(0, match.Index);
+                    string after = baseText.Substring(match.Index + match.Length);
+                    replacement += before;
+                    replacement += String.Format("{0} {1}\\cf2 ", pattern.Value, match.Value);
+                    baseText = after;
+                }
+                baseText = String.Concat(replacement, baseText);
+            }
+            baseText = Regex.Replace(baseText, "\n", "\\par\n");
+            baseText = String.Concat(prefix, baseText, "\\par\n}\n");
+            lastChange = true;
+            richTextBox.Rtf = baseText;
             richTextBox.Select(caretPosition, 0);
         }
 
@@ -166,22 +185,28 @@ namespace Gcody
             saveFileDialog.ShowDialog();
         }
 
-
         private void richTextBox_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Space)
             {
                 int currentLine = richTextBox.GetLineFromCharIndex(richTextBox.SelectionStart);
                 string currentLineText = richTextBox.Lines[currentLine].Substring(0, richTextBox.SelectionStart - richTextBox.GetFirstCharIndexOfCurrentLine());
-                string pattern = @"G[0-2]\sX[0-9]{1,6}\s$";
-                string pattern2 = @"G2\sX[0-9]{1,6}\sY[0-9]{1,6}\s$";
-                string pattern3 = @"G2\sX[0-9]{1,6}\sY[0-9]{1,6}\sI[0-9]{1,6}\s$";
+                string pattern = @"G[0-2]\sX-?[0-9.]{1,6}\s$";
+                string pattern2 = @"G2\sX-?[0-9.]{1,6}\sY-?[0-9.]{1,6}\s$";
+                string pattern3 = @"G2\sX-?[0-9.]{1,6}\sY-?[0-9.]{1,6}\sI-?[0-9.]{1,6}\s$";
                 if (Regex.IsMatch(currentLineText, pattern))
                     Write("Y");
                 else if (Regex.IsMatch(currentLineText, pattern2))
                     Write("I");
                 else if (Regex.IsMatch(currentLineText, pattern3))
                     Write("J");
+            }
+            if (e.KeyCode == Keys.Enter)
+            {
+                int currentLine = richTextBox.GetLineFromCharIndex(richTextBox.SelectionStart);
+                int lineOffset = richTextBox.SelectionStart - richTextBox.GetFirstCharIndexOfCurrentLine();
+                richTextBox.Lines = FormatLines(richTextBox.Lines);
+                richTextBox.Select(richTextBox.GetFirstCharIndexFromLine(currentLine) + lineOffset + 6, 0);
             }
         }
 
@@ -194,7 +219,6 @@ namespace Gcody
         {
             string text = richTextBox.Text;
             File.WriteAllText(((SaveFileDialog)sender).FileName, text);
-            //File.WriteAllText("rtf.txt", richTextBox.Rtf);
             defaultFileName = ((SaveFileDialog)sender).FileName;
             this.Text = string.Concat("GCode Editor - ", Path.GetFileName(defaultFileName));
         }
@@ -215,6 +239,8 @@ namespace Gcody
         {
             string text = File.ReadAllText(((OpenFileDialog)sender).FileName);
             richTextBox.Text = text;
+            defaultFileName = ((OpenFileDialog)sender).FileName;
+            this.Text = string.Concat("GCode Editor - ", Path.GetFileName(defaultFileName));
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -229,6 +255,33 @@ namespace Gcody
         private void richTextBox_TextChanged(object sender, EventArgs e)
         {
             PaintText();
+        }
+
+        private void SelectAllButton_Click(object sender, EventArgs e)
+        {
+            richTextBox.Focus();
+            richTextBox.SelectAll();
+        }
+
+        private void CutButton_Click(object sender, EventArgs e)
+        {
+            richTextBox.Focus();
+            string selected = richTextBox.Text.Substring(richTextBox.SelectionStart, richTextBox.SelectionLength);
+            Clipboard.SetText(selected);
+            richTextBox.Text = String.Concat(richTextBox.Text.Substring(0, richTextBox.SelectionStart), richTextBox.Text.Substring(richTextBox.SelectionStart + richTextBox.SelectionLength));
+        }
+
+        private void CopyButton_Click(object sender, EventArgs e)
+        {
+            richTextBox.Focus();
+            string selected = richTextBox.Text.Substring(richTextBox.SelectionStart, richTextBox.SelectionLength);
+            Clipboard.SetText(selected);
+        }
+
+        private void PasteButton_Click(object sender, EventArgs e)
+        {
+            richTextBox.Focus();
+            Write(Clipboard.GetText());
         }
     }
 }

@@ -173,7 +173,7 @@ namespace Gcody
             richTextBox.Select(caretPosition, 0);
         }
 
-        public void ShowSaveDialog()
+        public SaveFileDialog ShowSaveDialog()
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog
             {
@@ -183,6 +183,7 @@ namespace Gcody
             };
             saveFileDialog.FileOk += SaveFileDialog_FileOk;
             saveFileDialog.ShowDialog();
+            return saveFileDialog;
         }
 
         private void richTextBox_KeyUp(object sender, KeyEventArgs e)
@@ -247,8 +248,12 @@ namespace Gcody
         {
             switch(MessageBox.Show("Do you want to save before exit?", "Exit now?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning))
             {
-                case DialogResult.Cancel : e.Cancel = true; break;
-                case DialogResult.Yes: e.Cancel = true; ShowSaveDialog(); break;
+                case DialogResult.Cancel: 
+                    e.Cancel = true; 
+                    break;
+                case DialogResult.Yes: 
+                    if(ShowSaveDialog().DialogResult == DialogResult.Cancel) e.Cancel = true; 
+                    break;
             }
         }
 

@@ -36,7 +36,7 @@ namespace Gcody
         };
 
         bool lastChange = false;
-        string defaultFileName = "Untitled.ncp";
+        string defaultFilePath = "Untitled.ncp";
         private readonly Timer autosaveTimer = new Timer();
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -50,7 +50,7 @@ namespace Gcody
         private void AutosaveTimer_Tick(object sender, EventArgs e)
         {
             string text = richTextBox.Text;
-            File.WriteAllText(String.Concat(AppDomain.CurrentDomain.BaseDirectory, "autosave.ncp"), text);
+            File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "autosave.ncp"), text);
         }
 
         private void UseButton_Click(object sender, EventArgs e)
@@ -173,17 +173,17 @@ namespace Gcody
             richTextBox.Select(caretPosition, 0);
         }
 
-        public SaveFileDialog ShowSaveDialog()
+        public DialogResult ShowSaveDialog()
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog
             {
-                FileName = defaultFileName,
+                FileName = Path.GetFileName(defaultFilePath),
+                InitialDirectory = Path.GetDirectoryName(defaultFilePath),
                 Filter = "NCP File (*.ncp)|*.ncp",
                 DefaultExt = "ncp"
             };
             saveFileDialog.FileOk += SaveFileDialog_FileOk;
-            saveFileDialog.ShowDialog();
-            return saveFileDialog;
+            return saveFileDialog.ShowDialog();
         }
 
         private void richTextBox_KeyUp(object sender, KeyEventArgs e)
@@ -220,8 +220,8 @@ namespace Gcody
         {
             string text = richTextBox.Text;
             File.WriteAllText(((SaveFileDialog)sender).FileName, text);
-            defaultFileName = ((SaveFileDialog)sender).FileName;
-            this.Text = string.Concat("GCode Editor - ", Path.GetFileName(defaultFileName));
+            defaultFilePath = ((SaveFileDialog)sender).FileName;
+            this.Text = string.Concat("GCode Editor - ", Path.GetFileName(defaultFilePath));
         }
 
         private void LoadButton_Click(object sender, EventArgs e)
@@ -240,8 +240,8 @@ namespace Gcody
         {
             string text = File.ReadAllText(((OpenFileDialog)sender).FileName);
             richTextBox.Text = text;
-            defaultFileName = ((OpenFileDialog)sender).FileName;
-            this.Text = string.Concat("GCode Editor - ", Path.GetFileName(defaultFileName));
+            defaultFilePath = ((OpenFileDialog)sender).FileName;
+            this.Text = string.Concat("GCode Editor - ", Path.GetFileName(defaultFilePath));
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -252,7 +252,7 @@ namespace Gcody
                     e.Cancel = true; 
                     break;
                 case DialogResult.Yes: 
-                    if(ShowSaveDialog().DialogResult == DialogResult.Cancel) e.Cancel = true; 
+                    if(ShowSaveDialog() == DialogResult.Cancel) e.Cancel = true; 
                     break;
             }
         }
